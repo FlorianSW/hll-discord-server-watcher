@@ -72,7 +72,7 @@ func main() {
 			},
 		}
 		servers = append(servers, watcher.Server{
-			Query: tcadmin.NewClient(hc, "qp.qonzer.com", tcadmin.Credentials{
+			Query: tcadmin.NewClient(hc, c.ControlPanelBaseUrl, tcadmin.Credentials{
 				Username: server.Credentials.Username,
 				Password: server.Credentials.Password,
 			}),

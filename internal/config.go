@@ -17,6 +17,7 @@ type Config struct {
 	Discord             *Discord `json:"discord"`
 	Servers             []Server `json:"servers"`
 	PollIntervalSeconds *int     `json:"poll_interval_seconds"`
+	ControlPanelBaseUrl string   `json:"control_anel_base_url"`
 
 	path string
 }
