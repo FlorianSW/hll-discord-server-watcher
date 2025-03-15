@@ -78,7 +78,11 @@ func main() {
 			Config: server,
 		})
 	}
-	watcher.NewWatcher(logger, s, c, servers, 10*time.Second).Run()
+	interval := 10 * time.Minute
+	if c.PollIntervalSeconds != nil {
+		interval = time.Duration(*c.PollIntervalSeconds) * time.Second
+	}
+	watcher.NewWatcher(logger, s, c, servers, interval).Run()
 
 	stop := make(chan os.Signal, 1)
 	signal.Notify(stop, os.Interrupt)
