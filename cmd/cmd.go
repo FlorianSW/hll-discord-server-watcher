@@ -11,6 +11,7 @@ import (
 	"net/http/cookiejar"
 	"os"
 	"os/signal"
+	"syscall"
 	"time"
 )
 
@@ -85,7 +86,7 @@ func main() {
 	watcher.NewWatcher(logger, s, c, servers, interval).Run()
 
 	stop := make(chan os.Signal, 1)
-	signal.Notify(stop, os.Interrupt)
+	signal.Notify(stop, os.Interrupt, syscall.SIGTERM)
 	<-stop
 
 	logger.Info("graceful-shutdown")
