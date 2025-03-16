@@ -89,7 +89,7 @@ func (c *client) ServerInfo(serviceId string) (*ServerInfo, error) {
 	}
 	defer res.Body.Close()
 	if res.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("invalid response code, expected 200, got %d", res.StatusCode)
+		return nil, fmt.Errorf("invalid response code, expected 200, got %d with Location %s", res.StatusCode, res.Header.Get("Location"))
 	}
 	h, err := html.Parse(res.Body)
 	if err != nil {
