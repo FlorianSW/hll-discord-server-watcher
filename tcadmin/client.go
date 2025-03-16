@@ -16,6 +16,8 @@ const (
 
 	configUrlTemplate = "https://%s/Aspx/Interface/GameHosting/MvcConfigEditor.aspx?gameid=%s&modid=%s&fileid=%s&serviceid=%s"
 	loginUrlTemplate  = "https://%s/Aspx/Interface/Base/Login.aspx"
+
+	homeLocation = "/Aspx/Interface/Base/Home.aspx"
 )
 
 type client struct {
@@ -43,7 +45,7 @@ func (c *client) isLoggedIn() (bool, error) {
 		return false, err
 	}
 	defer res.Body.Close()
-	return res.StatusCode == http.StatusFound, nil
+	return res.StatusCode == http.StatusFound && res.Header.Get("Location") == homeLocation, nil
 }
 
 func (c *client) login() error {
