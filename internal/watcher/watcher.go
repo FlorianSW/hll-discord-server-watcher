@@ -41,24 +41,27 @@ func (w *watcher) watchServers() {
 	for {
 		select {
 		case <-w.ticker.C:
-			var servers []serverInfo
-			for _, server := range w.servers {
-				si, err := server.Query.ServerInfo(server.Config.ServiceId)
-				if err != nil {
-					w.logger.Error("server-query", "server", server.Config.Name, "error", err)
-					servers = append(servers, serverInfo{Name: server.Config.Name})
-					continue
-				}
-				servers = append(servers, serverInfo{
-					Name:           server.Config.Name,
-					Color:          server.Config.Color,
-					ServerName:     si.Name,
-					ServerPassword: si.Password,
-				})
-			}
-			go w.publish(servers)
+			w.poll()
 		}
 	}
+}
+
+func (w *watcher) poll() {
+	var servers []serverInfo
+	for _, server := range w.servers {
+		si, err := server.Query.ServerInfo(server.Config.ServiceId)
+		if err != nil {
+			w.logger.Error("server-query", "server", server.Config.Name, "error", err)
+			return
+		}
+		servers = append(servers, serverInfo{
+			Name:           server.Config.Name,
+			Color:          server.Config.Color,
+			ServerName:     si.Name,
+			ServerPassword: si.Password,
+		})
+	}
+	go w.publish(servers)
 }
 
 func (w *watcher) publish(s []serverInfo) {
