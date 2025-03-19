@@ -60,6 +60,8 @@ func (c *client) login() error {
 		return err
 	}
 	r.SetBasicAuth(c.creds.Username, c.creds.Password)
+	c.hc.Jar.SetCookies(r.URL, nil)
+
 	res, err := c.hc.Do(r)
 	if err != nil {
 		return err
