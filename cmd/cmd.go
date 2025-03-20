@@ -2,10 +2,10 @@ package main
 
 import (
 	"github.com/bwmarrin/discordgo"
+	"github.com/floriansw/go-tcadmin/tcadmin"
 	"github.com/floriansw/hll-discord-server-watcher/discord"
 	"github.com/floriansw/hll-discord-server-watcher/internal"
 	"github.com/floriansw/hll-discord-server-watcher/internal/watcher"
-	"github.com/floriansw/hll-discord-server-watcher/tcadmin"
 	"log/slog"
 	"net/http"
 	"net/http/cookiejar"
@@ -13,6 +13,12 @@ import (
 	"os/signal"
 	"syscall"
 	"time"
+)
+
+const (
+	hllGameId = "1098726659"
+	hllModId  = "0"
+	hllFileId = "1"
 )
 
 func main() {
@@ -72,7 +78,7 @@ func main() {
 			},
 		}
 		servers = append(servers, watcher.Server{
-			Query: tcadmin.NewClient(hc, c.ControlPanelBaseUrl, tcadmin.Credentials{
+			Query: tcadmin.NewClient(hc, c.ControlPanelBaseUrl, hllGameId, hllModId, hllFileId, tcadmin.Credentials{
 				Username: server.Credentials.Username,
 				Password: server.Credentials.Password,
 			}),
