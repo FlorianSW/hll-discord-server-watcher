@@ -6,8 +6,8 @@ import (
 	"errors"
 	"fmt"
 	"golang.org/x/net/html"
-	"io"
 	"net/http"
+	"net/http/cookiejar"
 	"net/url"
 	"strings"
 )
@@ -66,7 +66,7 @@ func (c *client) login() error {
 		return err
 	}
 	r.SetBasicAuth(c.creds.Username, c.creds.Password)
-	c.hc.Jar.SetCookies(r.URL, nil)
+	c.hc.Jar, _ = cookiejar.New(nil)
 
 	res, err := c.hc.Do(r)
 	if err != nil {
@@ -74,8 +74,6 @@ func (c *client) login() error {
 	}
 	defer res.Body.Close()
 	if res.StatusCode != http.StatusFound {
-		b, _ := io.ReadAll(res.Body)
-		println(string(b))
 		return errors.New("invalid username or password")
 	}
 	return nil
