@@ -4,16 +4,16 @@ go 1.24.1
 
 require (
 	github.com/bwmarrin/discordgo v0.28.1
-	github.com/floriansw/go-tcadmin v0.0.0-20250320153044-84d739e3fb1a
+	github.com/floriansw/go-tcadmin v0.0.0-20250320165919-239a3e4cab2a
 	github.com/onsi/ginkgo v1.16.5
 	github.com/onsi/gomega v1.36.2
 )
 
 require (
-	github.com/fsnotify/fsnotify v1.4.9 // indirect
-	github.com/google/go-cmp v0.6.0 // indirect
-	github.com/gorilla/websocket v1.4.2 // indirect
-	github.com/nxadm/tail v1.4.8 // indirect
+	github.com/fsnotify/fsnotify v1.8.0 // indirect
+	github.com/google/go-cmp v0.7.0 // indirect
+	github.com/gorilla/websocket v1.5.3 // indirect
+	github.com/nxadm/tail v1.4.11 // indirect
 	golang.org/x/crypto v0.36.0 // indirect
 	golang.org/x/net v0.37.0 // indirect
 	golang.org/x/sys v0.31.0 // indirect

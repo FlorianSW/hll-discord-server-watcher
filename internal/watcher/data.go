@@ -1,7 +1,7 @@
 package watcher
 
 import (
-	"github.com/floriansw/go-tcadmin/tcadmin"
+	"github.com/floriansw/go-tcadmin"
 	"github.com/floriansw/hll-discord-server-watcher/internal"
 )
 
