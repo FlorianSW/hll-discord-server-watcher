@@ -1,7 +1,7 @@
 # github.com/bwmarrin/discordgo v0.28.1
 ## explicit; go 1.13
 github.com/bwmarrin/discordgo
-# github.com/floriansw/go-tcadmin v0.0.0-20250320214444-adf04509b951
+# github.com/floriansw/go-tcadmin v0.0.0-20250324215739-631d92bdd83a
 ## explicit; go 1.24.1
 github.com/floriansw/go-tcadmin
 # github.com/fsnotify/fsnotify v1.8.0

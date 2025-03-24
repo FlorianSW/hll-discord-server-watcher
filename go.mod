@@ -4,7 +4,7 @@ go 1.24.1
 
 require (
 	github.com/bwmarrin/discordgo v0.28.1
-	github.com/floriansw/go-tcadmin v0.0.0-20250320214444-adf04509b951
+	github.com/floriansw/go-tcadmin v0.0.0-20250324215739-631d92bdd83a
 	github.com/onsi/ginkgo v1.16.5
 	github.com/onsi/gomega v1.36.2
 )

@@ -16,8 +16,7 @@ const (
 	configUrlTemplate  = "https://%s/Aspx/Interface/GameHosting/MvcConfigEditor.aspx?gameid=%s&modid=%s&fileid=%s&serviceid=%s"
 	loginUrlTemplate   = "https://%s/Aspx/Interface/Base/Login.aspx"
 	restartUrlTemplate = "https://%s/Aspx/Interface/Base/CallBacks/ServiceManager.aspx/Restart"
-
-	homeLocation = "/Aspx/Interface/Base/Home.aspx"
+	homeUrlTemplate    = "https://%s//Aspx/Interface/Base/Home.aspx"
 )
 
 type client struct {
@@ -42,7 +41,7 @@ func NewClient(hc http.Client, baseUrl, gameId, modId, configFileId string, cred
 }
 
 func (c *client) isLoggedIn() (bool, error) {
-	r, err := http.NewRequest(http.MethodGet, fmt.Sprintf(loginUrlTemplate, c.baseUrl), nil)
+	r, err := http.NewRequest(http.MethodGet, fmt.Sprintf(homeUrlTemplate, c.baseUrl), nil)
 	if err != nil {
 		return false, err
 	}
@@ -51,7 +50,7 @@ func (c *client) isLoggedIn() (bool, error) {
 		return false, err
 	}
 	defer res.Body.Close()
-	return res.StatusCode == http.StatusFound && res.Header.Get("Location") == homeLocation, nil
+	return res.StatusCode == http.StatusOK, nil
 }
 
 func (c *client) login() error {
