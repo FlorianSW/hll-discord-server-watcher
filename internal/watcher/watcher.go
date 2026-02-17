@@ -1,10 +1,12 @@
 package watcher
 
 import (
-	"github.com/bwmarrin/discordgo"
-	"github.com/floriansw/hll-discord-server-watcher/internal"
 	"log/slog"
 	"time"
+
+	"github.com/bwmarrin/discordgo"
+	"github.com/floriansw/go-tcadmin"
+	"github.com/floriansw/hll-discord-server-watcher/internal"
 )
 
 type watcher struct {
@@ -46,10 +48,21 @@ func (w *watcher) watchServers() {
 	}
 }
 
+func String(v *string) string {
+	if v == nil {
+		return ""
+	}
+	return *v
+}
+
 func (w *watcher) poll() {
 	var servers []serverInfo
 	for _, server := range w.servers {
-		si, err := server.Query.ServerInfo(server.Config.ServiceId)
+		pwSource := tcadmin.PasswordSourceConfigPage
+		if String(server.Config.Hoster) == "streamline" {
+			pwSource = tcadmin.PasswordSourceServiceCmdLine
+		}
+		si, err := server.Query.ServerInfo(server.Config.ServiceId, tcadmin.ServerInfoOptions{PasswordSource: pwSource})
 		if err != nil {
 			w.logger.Error("server-query", "server", server.Config.Name, "error", err)
 			return

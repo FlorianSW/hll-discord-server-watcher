@@ -6,7 +6,7 @@ import (
 )
 
 type ServerQuery interface {
-	ServerInfo(serviceId string) (*tcadmin.ServerInfo, error)
+	ServerInfo(serviceId string, opts tcadmin.ServerInfoOptions) (*tcadmin.ServerInfo, error)
 }
 
 type Server struct {

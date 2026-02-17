@@ -23,10 +23,13 @@ type Config struct {
 }
 
 type Server struct {
-	Name        string      `json:"name"`
-	Color       *int        `json:"color"`
-	ServiceId   string      `json:"service_id"`
-	Credentials Credentials `json:"credentials"`
+	Name                string      `json:"name"`
+	Hoster              *string     `json:"hoster,omitempty"`
+	ControlPanelBaseUrl *string     `json:"control_panel_base_url,omitempty"`
+	GameId              *string     `json:"game_id"`
+	Color               *int        `json:"color"`
+	ServiceId           string      `json:"service_id"`
+	Credentials         Credentials `json:"credentials"`
 }
 
 type Credentials struct {

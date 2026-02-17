@@ -5,19 +5,30 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"golang.org/x/net/html"
+	"io"
 	"net/http"
 	"net/http/cookiejar"
 	"net/url"
+	"slices"
 	"strings"
+
+	"golang.org/x/net/html"
 )
 
 const (
 	configUrlTemplate  = "https://%s/Aspx/Interface/GameHosting/MvcConfigEditor.aspx?gameid=%s&modid=%s&fileid=%s&serviceid=%s"
+	serviceCmdLine     = "https://%s/Aspx/Interface/GameHosting/ServiceCmdLine.aspx?serviceid=%s"
 	loginUrlTemplate   = "https://%s/Aspx/Interface/Base/Login.aspx"
 	restartUrlTemplate = "https://%s/Aspx/Interface/Base/CallBacks/ServiceManager.aspx/Restart"
 	homeUrlTemplate    = "https://%s//Aspx/Interface/Base/Home.aspx"
+
+	// PasswordSourceConfigPage tries to fetch the server password from the configuration page in TCAdmin (e.g. for Qonzer servers)
+	PasswordSourceConfigPage = PasswordSource("config")
+	// PasswordSourceServiceCmdLine tries to extract the server password from the CMD line of the service (e.g. Streamline severs)
+	PasswordSourceServiceCmdLine = PasswordSource("cmdLine")
 )
+
+type PasswordSource string
 
 type client struct {
 	hc http.Client
@@ -78,7 +89,12 @@ func (c *client) login() error {
 	return nil
 }
 
-func (c *client) ServerInfo(serviceId string) (*ServerInfo, error) {
+type ServerInfoOptions struct {
+	// PasswordSource One of the PasswordSource enum values. Defaults to PasswordSourceConfigPage if not set
+	PasswordSource PasswordSource
+}
+
+func (c *client) ServerInfo(serviceId string, opts ServerInfoOptions) (*ServerInfo, error) {
 	if err := c.login(); err != nil {
 		return nil, err
 	}
@@ -87,10 +103,64 @@ func (c *client) ServerInfo(serviceId string) (*ServerInfo, error) {
 	if err != nil {
 		return nil, err
 	}
+	var pw string
+	if opts.PasswordSource == PasswordSourceServiceCmdLine {
+		r, err := c.serviceCmdLine(serviceId)
+		if err != nil {
+			return nil, err
+		}
+		s := strings.Split(r, "-")
+		for _, arg := range s {
+			if strings.HasPrefix(arg, "ServerPassword=") {
+				pw = strings.TrimSpace(arg[len("ServerPassword="):])
+			}
+		}
+	} else {
+		pw = valueFor(h, "Server Password")
+	}
 	return &ServerInfo{
 		Name:     valueFor(h, "Server Name"),
-		Password: valueFor(h, "Server Password"),
+		Password: pw,
 	}, nil
+}
+
+func (c *client) serviceCmdLine(serviceId string) (string, error) {
+	r, err := http.NewRequest(http.MethodGet, fmt.Sprintf(serviceCmdLine, c.baseUrl, serviceId), nil)
+	if err != nil {
+		return "", err
+	}
+	res, err := c.hc.Do(r)
+	if err != nil {
+		return "", err
+	}
+	defer res.Body.Close()
+	if res.StatusCode != http.StatusOK {
+		return "", fmt.Errorf("invalid response code, expected 200, got %d with Location %s", res.StatusCode, res.Header.Get("Location"))
+	}
+	b, _ := io.ReadAll(res.Body)
+	h, err := html.Parse(bytes.NewReader(b))
+	if err != nil {
+		return "", err
+	}
+	n := findNode(h, func(n *html.Node) bool {
+		for _, a := range n.Attr {
+			if n.FirstChild == nil {
+				continue
+			}
+			if a.Key == "class" && strings.Contains(a.Val, "selectedCmdLine") {
+				return true
+			}
+		}
+		return false
+	})
+	if n == nil {
+		return "", nil
+	}
+	cn := slices.Collect(n.ChildNodes())
+	if len(cn) < 3 {
+		return "", nil
+	}
+	return cn[2].FirstChild.Data, nil
 }
 
 func (c *client) configEditorPage(serviceId string) (*html.Node, error) {
@@ -111,6 +181,9 @@ func (c *client) configEditorPage(serviceId string) (*html.Node, error) {
 	return h, err
 }
 
+// SetServerInfo Updates the server info. Use with caution, this might not actually work for your server provider. The client
+// will try to set all configs accordingly, but might continue with a partial update, or error completely.
+// Definitely does not support updating the server password for Streamline servers.
 func (c *client) SetServerInfo(serviceId string, name, pw string) error {
 	if err := c.login(); err != nil {
 		return err

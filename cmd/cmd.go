@@ -1,11 +1,6 @@
 package main
 
 import (
-	"github.com/bwmarrin/discordgo"
-	"github.com/floriansw/go-tcadmin"
-	"github.com/floriansw/hll-discord-server-watcher/discord"
-	"github.com/floriansw/hll-discord-server-watcher/internal"
-	"github.com/floriansw/hll-discord-server-watcher/internal/watcher"
 	"log/slog"
 	"net/http"
 	"net/http/cookiejar"
@@ -13,6 +8,12 @@ import (
 	"os/signal"
 	"syscall"
 	"time"
+
+	"github.com/bwmarrin/discordgo"
+	"github.com/floriansw/go-tcadmin"
+	"github.com/floriansw/hll-discord-server-watcher/discord"
+	"github.com/floriansw/hll-discord-server-watcher/internal"
+	"github.com/floriansw/hll-discord-server-watcher/internal/watcher"
 )
 
 const (
@@ -77,8 +78,16 @@ func main() {
 				return http.ErrUseLastResponse
 			},
 		}
+		baseUrl := c.ControlPanelBaseUrl
+		if server.ControlPanelBaseUrl != nil {
+			baseUrl = *server.ControlPanelBaseUrl
+		}
+		gameId := hllGameId
+		if server.GameId != nil {
+			gameId = *server.GameId
+		}
 		servers = append(servers, watcher.Server{
-			Query: tcadmin.NewClient(hc, c.ControlPanelBaseUrl, hllGameId, hllModId, hllFileId, tcadmin.Credentials{
+			Query: tcadmin.NewClient(hc, baseUrl, gameId, hllModId, hllFileId, tcadmin.Credentials{
 				Username: server.Credentials.Username,
 				Password: server.Credentials.Password,
 			}),
