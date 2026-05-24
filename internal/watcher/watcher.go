@@ -1,7 +1,10 @@
 package watcher
 
 import (
+	"errors"
 	"log/slog"
+	"os"
+	"syscall"
 	"time"
 
 	"github.com/bwmarrin/discordgo"
@@ -63,7 +66,18 @@ func (w *watcher) poll() {
 			pwSource = tcadmin.PasswordSourceServiceCmdLine
 		}
 		si, err := server.Query.ServerInfo(server.Config.ServiceId, tcadmin.ServerInfoOptions{PasswordSource: pwSource})
-		if err != nil {
+		if os.IsTimeout(err) ||
+			errors.Is(err, syscall.ECONNRESET) ||
+			errors.Is(err, syscall.ECONNREFUSED) ||
+			errors.Is(err, syscall.EPIPE) {
+			servers = append(servers, serverInfo{
+				Name:           server.Config.Name,
+				Color:          server.Config.Color,
+				ServerName:     "Connection error",
+				ServerPassword: "",
+			})
+			continue
+		} else if err != nil {
 			w.logger.Error("server-query", "server", server.Config.Name, "error", err)
 			return
 		}
