@@ -97,9 +97,8 @@ func (w *watcher) createMessage(s []serverInfo) {
 }
 
 func (w *watcher) updateMessage(s []serverInfo) {
-	embeds := serverStatus(s)
 	message, err := w.s.ChannelMessageEditComplex(&discordgo.MessageEdit{
-		Embeds:  &embeds,
+		Embeds:  new(serverStatus(s)),
 		ID:      *w.c.Discord.MessageId,
 		Channel: w.c.Discord.ChannelId,
 	})
